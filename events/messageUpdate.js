@@ -123,7 +123,6 @@ async function rebuildAndEdit(client, originalMessageId) {
             try {
                 // Reply Embed Logic (Unique per target)
                 let replyEmbed = null;
-                let replyPing = '';
 
                 if (originalMessage.reference && originalMessage.reference.messageId) {
                     // Try to fetch replied-to message info
@@ -159,15 +158,15 @@ async function rebuildAndEdit(client, originalMessageId) {
                             .setColor('#B0B8C6')
                             .setAuthor({ name: `Replying to ${repliedAuthorName}`, url: messageLink, iconURL: repliedAuthorAvatar })
                             .setDescription(repliedContent);
-                        
-                        replyPing = `<@${repliedMessage.author.id}> `;
+
+                        // No reply ping here: new relayed messages do not ping the replied user either.
                     } else {
                         replyEmbed = new EmbedBuilder().setColor('#B0B8C6').setDescription('*Replying to a deleted or inaccessible message.*');
                     }
                 }
 
                 // Combine Content
-                const targetContent = replyPing + finalContent;
+                const targetContent = finalContent;
 
                 const payload = {
                     content: targetContent,
