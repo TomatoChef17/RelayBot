@@ -1,6 +1,7 @@
 // events/messageUpdate.js
 const { Events, WebhookClient, EmbedBuilder } = require('discord.js');
 const db = require('../db/database.js');
+const { formatUserMentions } = require('../utils/mentionFormatter.js');
 const webhookManager = require('../utils/webhookManager.js');
 
 const MAX_USERNAME_LENGTH = 80;
@@ -65,6 +66,9 @@ async function rebuildAndEdit(client, originalMessageId) {
                 }
             }
         }
+
+        // User pings become the nickname from this server: `@Nickname`
+        finalContent = formatUserMentions(finalContent, originalMessage);
 
         // Add attachment links if present (since we can't re-upload files easily on edit)
         if (originalMessage.attachments.size > 0) {
@@ -132,7 +136,7 @@ async function rebuildAndEdit(client, originalMessageId) {
                     if (repliedMessage) {
                         const repliedAuthorName = repliedMessage.member?.displayName ?? repliedMessage.author.username;
                         const repliedAuthorAvatar = repliedMessage.author.displayAvatarURL();
-                        let repliedContent = repliedMessage.content ? repliedMessage.content.substring(0, 1000) : '*(Message had no text content)*';
+                        let repliedContent = repliedMessage.content ? formatUserMentions(repliedMessage.content, repliedMessage).substring(0, 1000) : '*(Message had no text content)*';
                         if (repliedMessage.editedTimestamp) repliedContent += ' *(edited)*';
 
                         // DB Lookup for Link

@@ -6,6 +6,7 @@ const relayQueue = require('../utils/relayQueue.js');
 const { isGroupSupported } = require('../utils/supporterManager.js');
 const webhookManager = require('../utils/webhookManager.js');
 const Logger = require('../utils/logManager.js');
+const { formatUserMentions } = require('../utils/mentionFormatter.js');
 
 const BOT_OWNER_ID = '182938628643749888';
 
@@ -249,7 +250,7 @@ module.exports = {
                         if (repliedMessage) {
                             const repliedAuthorName = repliedMessage.member?.displayName ?? repliedMessage.author.username;
                             const repliedAuthorAvatar = repliedMessage.author.displayAvatarURL();
-                            let repliedContent = repliedMessage.content ? repliedMessage.content.substring(0, 1000) : '*(Message had no text content)*';
+                            let repliedContent = repliedMessage.content ? formatUserMentions(repliedMessage.content, repliedMessage).substring(0, 1000) : '*(Message had no text content)*';
                             if (repliedMessage.editedTimestamp) repliedContent += ' *(edited)*';
 
                             const repliedToId = repliedMessage.id;
@@ -287,7 +288,8 @@ module.exports = {
                     }
 
                     // --- Role Logic ---
-                    let targetContent = message.content;
+                    // User pings become the nickname from this server: `@Nickname`
+                    let targetContent = formatUserMentions(message.content, message);
                     const roleMentions = targetContent.match(/<@&(\d+)>/g);
 
                     if (roleMentions) {
@@ -360,7 +362,7 @@ module.exports = {
                     if (message.messageSnapshots && message.messageSnapshots.size > 0) {
                         const snapshot = message.messageSnapshots.first();
                         if (snapshot) {
-                            if (snapshot.content) finalPayloadContent += `\n> *Forwarded Message:*\n${snapshot.content}`;
+                            if (snapshot.content) finalPayloadContent += `\n> *Forwarded Message:*\n${formatUserMentions(snapshot.content, message)}`;
                             if (snapshot.embeds && snapshot.embeds.length > 0) payloadEmbeds.push(...snapshot.embeds);
                             if (snapshot.attachments && snapshot.attachments.size > 0) {
                                 snapshot.attachments.forEach(att => {
