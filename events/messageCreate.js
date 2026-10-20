@@ -288,8 +288,7 @@ module.exports = {
                     }
 
                     // --- Role Logic ---
-                    // User pings become the nickname from this server: `@Nickname`
-                    let targetContent = formatUserMentions(message.content, message);
+                    let targetContent = message.content;
                     const roleMentions = targetContent.match(/<@&(\d+)>/g);
 
                     if (roleMentions) {
@@ -319,7 +318,8 @@ module.exports = {
                         }
                     }
                 
-                    finalContent = targetContent;
+                    // User pings become the nickname from this server: `@Nickname`
+                    finalContent = formatUserMentions(targetContent, message);
                     const contentWithoutMentions = finalContent.replace(/<@!?&?#?(\d+)>/g, '').trim();
                     if (contentWithoutMentions.length === 0 && hasUnmappedRoles) {
                         finalContent = `*(Unmapped role in original message. Admin can map it or enable auto-sync.))*`;
