@@ -287,7 +287,8 @@ module.exports = {
                     }
 
                     // --- Role Logic ---
-                    let targetContent = message.content;
+                    // Start from the filtered text, so banned words stay hidden (***) in relayed copies.
+                    let targetContent = filterContent;
                     const roleMentions = targetContent.match(/<@&(\d+)>/g);
 
                     if (roleMentions) {
